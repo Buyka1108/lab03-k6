@@ -90,3 +90,26 @@ Availability-г шалгахын тулд k6 тестийг 20 VU ачаалал
 Гэхдээ request-based availability 85.30% болсон тул request-based SLO хангагдсангүй. Сервер унтарсан үед connection refused хариу маш хурдан үүсдэг тул богино хугацаанд олон failed request бүртгэгдсэн. Иймээс time-based availability болон request-based availability хооронд ялгаа гарсан.
 
 Chaos туршилтын үед `/pay` error rate 17.81% болж reliability threshold мөн FAIL болсон. Учир нь `/pay`-ийн зориудын алдаанаас гадна сервер унтарсан үеийн хүсэлтүүд мөн failed request болж бүртгэгдсэн. Availability болон reliability-г илүү зөв тусгаарлахын тулд серверийн хүрэлцээтэй байдлын алдаа болон `/pay` endpoint-ийн application error-ийг тусдаа metric/tag-аар хэмжиж болно.
+## 4. Зориудаар FAIL болгосон туршилт
+
+Threshold зөрчигдөх үед k6 хэрхэн FAIL төлөв болон non-zero exit code буцааж байгааг шалгахын тулд тусдаа `slo-test-fail.js` файл үүсгэсэн.
+
+`/report` endpoint нь 200–400 ms сааталтай ажилладаг тул түүний threshold-ийг зориудаар:
+
+`p(95) < 100 ms`
+
+болгож чангаруулсан.
+
+Туршилтын үр дүн:
+
+- `/report` p95: 390.43 ms
+- Threshold: p95 < 100 ms
+- Үр дүн: FAIL
+- k6 exit code: 99
+
+Бусад threshold-ууд:
+- Checks: 98.12% → PASS
+- `/cart/add` p95: 2.71 ms → PASS
+- `/pay` error rate: 5.61% → PASS
+
+Ингэснээр SLO threshold зөрчигдөх үед k6 тестийг автоматаар FAIL болгож, non-zero exit code буцааж байгааг баталсан. Энэ механизмыг CI/CD pipeline-д чанарын шаардлага хангаагүй build эсвэл deployment-ийг илрүүлэхэд ашиглаж болно.
