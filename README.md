@@ -69,3 +69,24 @@ Error budget = 100% - 90% = 10%
 120 × 10% = 12 секунд
 
 Иймээс 2 минутын туршилтын хугацаанд системийн цаг хугацаагаар тооцсон error budget нь **12 секунд** байна.
+## 3. Chaos туршилтын үр дүн
+
+Availability-г шалгахын тулд k6 тестийг 20 VU ачаалалтай 2 минут ажиллуулж, тестийн явцад API серверийг 10 секунд зогсоогоод дахин асаасан.
+
+- Нийт хүсэлт: 5709
+- Амжилттай хүсэлт: 4870
+- Амжилтгүй хүсэлт: 839
+- Request-based availability: 4870 / 5709 × 100 = 85.30%
+- Availability SLO: ≥ 90%
+- Үр дүн: FAIL
+- `/pay` error rate: 17.81%
+- Reliability SLO: < 8%
+- Үр дүн: FAIL
+
+### Error budget-ийн харьцуулалт
+
+2 минутын туршилтын хугацаа 120 секунд. Availability SLO 90% учраас error budget нь 12 секунд байна. Серверийг 10 секунд зогсоосон тул time-based хэмжилтээр 10 секунд нь 12 секундийн error budget дотор байна.
+
+Гэхдээ request-based availability 85.30% болсон тул request-based SLO хангагдсангүй. Сервер унтарсан үед connection refused хариу маш хурдан үүсдэг тул богино хугацаанд олон failed request бүртгэгдсэн. Иймээс time-based availability болон request-based availability хооронд ялгаа гарсан.
+
+Chaos туршилтын үед `/pay` error rate 17.81% болж reliability threshold мөн FAIL болсон. Учир нь `/pay`-ийн зориудын алдаанаас гадна сервер унтарсан үеийн хүсэлтүүд мөн failed request болж бүртгэгдсэн. Availability болон reliability-г илүү зөв тусгаарлахын тулд серверийн хүрэлцээтэй байдлын алдаа болон `/pay` endpoint-ийн application error-ийг тусдаа metric/tag-аар хэмжиж болно.
